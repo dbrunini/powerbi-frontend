@@ -1,10 +1,10 @@
 export default function handler(req, res) {
-    // Cabeçalhos para permitir CORS
-    res.setHeader("Access-Control-Allow-Origin", "https://dbrunini.github.io/powerbi-frontend/");
+    // Configurações de CORS para permitir o frontend
+    res.setHeader("Access-Control-Allow-Origin", "https://powerbi-frontend-7mez0d6m6-dbruninis-projects.vercel.app");
     res.setHeader("Access-Control-Allow-Methods", "POST");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // Processar credenciais
+    // Lógica de autenticação
     const { username, password } = req.body;
     const validUser = process.env.USERNAME;
     const validPassword = process.env.PASSWORD;
