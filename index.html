@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso ao Power BI</title>
+    <title>Acesso ao Relatório Power BI</title>
 </head>
 <body>
     <h1>Acesso ao Relatório do Power BI</h1>
@@ -17,36 +17,44 @@
         <button type="submit">Acessar</button>
     </form>
     <div id="error" style="color: red; display: none;">Usuário ou senha inválidos.</div>
-    <iframe id="powerbiFrame" style="display: none; width: 100%; height: 800px;" src=""></iframe>
-
+    <iframe id="powerbiFrame" style="display: none; width: 100%; height: 600px;" src=""></iframe>
+    
     <script>
-        const vercelUrl = "https://powerbi-frontend.vercel.app/api/login"; // Atualize SEU_USUARIO
+        // URL do backend hospedado no Vercel, onde está o arquivo login.js
+        const vercelUrl = "https://powerbi-frontend.vercel.app/api/login";
 
-        document.getElementById('loginForm').onsubmit = async function(event) {
+        document.getElementById('loginForm').onsubmit = function(event) {
             event.preventDefault();
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            try {
-                const response = await fetch(vercelUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    document.getElementById('powerbiFrame').src = result.link;
-                    document.getElementById('powerbiFrame').style.display = 'block';
-                    document.getElementById('loginForm').style.display = 'none';
-                    document.getElementById('error').style.display = 'none';
+            // Envia as credenciais para o backend e exibe o Power BI se válidas
+            fetch(vercelUrl, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Retorna o conteúdo HTML (relatório Power BI embutido) do backend
+                    return response.text();
                 } else {
-                    document.getElementById('error').style.display = 'block';
+                    throw new Error("Usuário ou senha inválidos.");
                 }
-            } catch (error) {
-                document.getElementById('error').textContent = "Erro ao conectar ao servidor.";
+            })
+            .then(htmlContent => {
+                // Insere o conteúdo HTML diretamente no iframe
+                document.getElementById('powerbiFrame').srcdoc = htmlContent;
+                document.getElementById('powerbiFrame').style.display = 'block';
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('error').style.display = 'none';
+            })
+            .catch(error => {
+                // Exibe mensagem de erro caso as credenciais estejam incorretas
+                document.getElementById('error').textContent = error.message;
                 document.getElementById('error').style.display = 'block';
-            }
+            });
         };
     </script>
 </body>
