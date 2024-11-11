@@ -17,11 +17,10 @@
         <button type="submit">Acessar</button>
     </form>
     <div id="error" style="color: red; display: none;">Usuário ou senha inválidos.</div>
-    <iframe id="powerbiFrame" style="display: none; width: 100%; height: 600px;" src=""></iframe>
-    
+    <div id="reportContainer" style="display: none;"></div>
+
     <script>
-        // URL do backend hospedado no Vercel, onde está o arquivo login.js
-        const vercelUrl = "https://powerbi-frontend.vercel.app/api/login";
+        const vercelUrl = "https://powerbi-frontend.vercel.app/api/login";;
 
         document.getElementById('loginForm').onsubmit = function(event) {
             event.preventDefault();
@@ -29,7 +28,6 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Envia as credenciais para o backend e exibe o Power BI se válidas
             fetch(vercelUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -37,21 +35,18 @@
             })
             .then(response => {
                 if (response.ok) {
-                    // Retorna o conteúdo HTML (relatório Power BI embutido) do backend
                     return response.text();
                 } else {
                     throw new Error("Usuário ou senha inválidos.");
                 }
             })
             .then(htmlContent => {
-                // Insere o conteúdo HTML diretamente no iframe
-                document.getElementById('powerbiFrame').srcdoc = htmlContent;
-                document.getElementById('powerbiFrame').style.display = 'block';
+                document.getElementById('reportContainer').innerHTML = htmlContent;
+                document.getElementById('reportContainer').style.display = 'block';
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('error').style.display = 'none';
             })
             .catch(error => {
-                // Exibe mensagem de erro caso as credenciais estejam incorretas
                 document.getElementById('error').textContent = error.message;
                 document.getElementById('error').style.display = 'block';
             });
