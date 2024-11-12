@@ -1,56 +1,88 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso ao Relatório Power BI</title>
+    <title>Relatório Power BI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        #loginForm, #content {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #content {
+            display: none;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Acesso ao Relatório do Power BI</h1>
-    <form id="loginForm">
+
+    <div id="loginForm">
+        <h2>Entrar</h2>
         <label for="username">Usuário:</label>
-        <input type="text" id="username" required>
-        <br>
+        <input type="text" id="username" name="username" required><br><br>
         <label for="password">Senha:</label>
-        <input type="password" id="password" required>
-        <br>
-        <button type="submit">Acessar</button>
-    </form>
-    <div id="error" style="color: red; display: none;">Usuário ou senha inválidos.</div>
-    <div id="reportContainer" style="display: none;"></div>
+        <input type="password" id="password" name="password" required><br><br>
+        <button onclick="login()">Login</button>
+        <p id="error" class="error hidden">Usuário ou senha inválidos.</p>
+    </div>
+
+    <div id="content"></div>
 
     <script>
-        const vercelUrl = "https://powerbi-frontend.vercel.app/api/login";
+        const vercelUrl = "https://powerbi-frontend.vercel.app/api/login"; // Altere para seu URL no Vercel
 
-        document.getElementById('loginForm').onsubmit = function(event) {
-            event.preventDefault();
+        async function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            
+            try {
+                const response = await fetch(vercelUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            fetch(vercelUrl, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.text();
-                } else {
-                    throw new Error("Usuário ou senha inválidos.");
+                if (!response.ok) {
+                    document.getElementById("error").classList.remove("hidden");
+                    return;
                 }
-            })
-            .then(htmlContent => {
-                document.getElementById('reportContainer').innerHTML = htmlContent;
-                document.getElementById('reportContainer').style.display = 'block';
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('error').style.display = 'none';
-            })
-            .catch(error => {
-                document.getElementById('error').textContent = error.message;
-                document.getElementById('error').style.display = 'block';
-            });
-        };
+
+                // Obtem o conteúdo do Power BI sem exibir o iframe
+                const data = await response.text();
+                document.getElementById("content").innerHTML = data;
+                document.getElementById("content").style.display = "block";
+                document.getElementById("loginForm").style.display = "none";
+                document.getElementById("error").classList.add("hidden");
+
+            } catch (error) {
+                console.error("Erro ao conectar ao servidor:", error);
+                document.getElementById("error").textContent = "Erro ao conectar ao servidor.";
+                document.getElementById("error").classList.remove("hidden");
+            }
+        }
     </script>
 </body>
 </html>
