@@ -14,7 +14,7 @@
             min-height: 100vh;
             margin: 0;
         }
-        #loginForm, #content {
+        #loginForm, #contentContainer {
             width: 100%;
             max-width: 400px;
             margin: 20px;
@@ -23,8 +23,11 @@
             border-radius: 5px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         }
-        #content {
+        #contentContainer {
             display: none;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
         }
         .error {
             color: red;
@@ -47,7 +50,10 @@
         <p id="error" class="error hidden">Usuário ou senha inválidos.</p>
     </div>
 
-    <div id="content"></div>
+    <div id="contentContainer">
+        <h2>Relatório Power BI</h2>
+        <div id="content">Carregando relatório...</div>
+    </div>
 
     <script>
         const vercelUrl = "https://powerbi-frontend.vercel.app/api/login"; // Altere para seu URL no Vercel
@@ -70,12 +76,18 @@
                     return;
                 }
 
-                // Obtem o conteúdo do Power BI sem exibir o iframe
-                const data = await response.text();
-                document.getElementById("content").innerHTML = data;
-                document.getElementById("content").style.display = "block";
-                document.getElementById("loginForm").style.display = "none";
-                document.getElementById("error").classList.add("hidden");
+                // Obtem o link do Power BI do backend
+                const data = await response.json();
+                
+                if (data.success && data.link) {
+                    // Insere o link do Power BI na div #content usando um iframe
+                    document.getElementById("content").innerHTML = `<iframe src="${data.link}" width="100%" height="600" style="border: none;"></iframe>`;
+                    document.getElementById("contentContainer").style.display = "block";
+                    document.getElementById("loginForm").style.display = "none";
+                    document.getElementById("error").classList.add("hidden");
+                } else {
+                    document.getElementById("error").classList.remove("hidden");
+                }
 
             } catch (error) {
                 console.error("Erro ao conectar ao servidor:", error);
