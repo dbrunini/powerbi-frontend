@@ -8,11 +8,19 @@
         /* Centraliza o contêiner do formulário */
         #login-container {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
+            text-align: center;
         }
         
+        /* Estilos do título */
+        #login-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
         /* Estilos do formulário */
         #loginForm {
             display: flex;
@@ -75,6 +83,9 @@
 </head>
 <body>
     <div id="login-container">
+        <!-- Título acima do formulário -->
+        <h2 id="login-title">Acessar Relatório do Power BI</h2>
+        
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">Usuário:</label>
