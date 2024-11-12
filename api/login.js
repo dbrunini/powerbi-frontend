@@ -25,11 +25,25 @@ export default function handler(req, res) {
             <html lang="pt-BR">
             <head>
                 <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
                 <title>Relatório Power BI</title>
+                <style>
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        width: 100%;
+                        height: 100%;
+                        overflow: hidden;
+                    }
+                    iframe {
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                    }
+                </style>
             </head>
             <body>
-                <iframe src="${process.env.POWER_BI_LINK}" width="100%" height="100%" style="border: none;"></iframe>
+                <iframe src="${process.env.POWER_BI_LINK}" allowfullscreen></iframe>
             </body>
             </html>
         `);
