@@ -5,67 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acesso ao Relatório Power BI</title>
     <style>
-        /* Estilos para centralizar o contêiner de login */
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: Arial, sans-serif;
+        /* Centraliza o contêiner do formulário */
+        #login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-        #loginContainer {
-            text-align: center;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            background-color: #f9f9f9;
-            position: absolute; /* Permite que o iframe ocupe toda a tela */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        
+        /* Estilos do formulário */
+        #loginForm {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Alinha os campos à direita */
+            width: 300px;
         }
-        #powerbiFrame {
-            display: none;
+        
+        /* Contêiner para alinhar label e input */
+        .form-group {
+            display: flex;
+            justify-content: space-between;
             width: 100%;
-            height: 100vh; /* Garantir que o iframe ocupe a altura total da tela */
-            border: none;
-            position: absolute;
-            top: 0;
-            left: 0;
+            margin-bottom: 10px;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin-top: 10px;
-            cursor: pointer;
+        
+        /* Estilos dos labels */
+        label {
+            width: 70px;
+            text-align: right;
+            margin-right: 10px;
         }
+
+        /* Estilos dos inputs */
         input {
             padding: 8px;
-            margin: 5px 0;
-            width: 40%;
+            width: 60%;
             box-sizing: border-box;
+        }
+
+        /* Botão */
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Estilo da mensagem de erro */
+        #error {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <!-- Contêiner do conteúdo de login -->
-    <div id="loginContainer">
-        <h1>Acesso ao Relatório do Power BI</h1>
+    <div id="login-container">
         <form id="loginForm">
-            <label for="username">Usuário:</label>
-            <input type="text" id="username" required>
-            <br>
-            <label for="password">Senha:</label>
-            <input type="password" id="password" required>
-            <br>
+            <div class="form-group">
+                <label for="username">Usuário:</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" required>
+            </div>
             <button type="submit">Acessar</button>
+            <div id="error" style="display: none;">Usuário ou senha inválidos.</div>
         </form>
-        <div id="error" style="color: red; display: none;">Usuário ou senha inválidos.</div>
     </div>
 
-    <!-- Iframe do relatório do Power BI -->
-    <iframe id="powerbiFrame" src=""></iframe>
-    
+    <iframe id="powerbiFrame" style="display: none; width: 100%; height: 100vh; border: none;" src=""></iframe>
+
     <script>
-        // URL do backend hospedado no Vercel, onde está o arquivo login.js
         const vercelUrl = "https://powerbi-frontend.vercel.app/api/login";
 
         document.getElementById('loginForm').onsubmit = function(event) {
@@ -74,7 +89,6 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            // Envia as credenciais para o backend e exibe o Power BI se válidas
             fetch(vercelUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -82,23 +96,18 @@
             })
             .then(response => {
                 if (response.ok) {
-                    // Retorna o conteúdo HTML (relatório Power BI embutido) do backend
                     return response.text();
                 } else {
                     throw new Error("Usuário ou senha inválidos.");
                 }
             })
             .then(htmlContent => {
-                // Insere o conteúdo HTML diretamente no iframe
                 document.getElementById('powerbiFrame').srcdoc = htmlContent;
-                
-                // Oculta o contêiner de login e exibe o iframe
-                document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('powerbiFrame').style.display = 'block';
+                document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('error').style.display = 'none';
             })
             .catch(error => {
-                // Exibe mensagem de erro caso as credenciais estejam incorretas
                 document.getElementById('error').textContent = error.message;
                 document.getElementById('error').style.display = 'block';
             });
