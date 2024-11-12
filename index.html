@@ -1,100 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório Power BI</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        #loginForm, #contentContainer {
-            width: 100%;
-            max-width: 400px;
-            margin: 20px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        #contentContainer {
-            display: none;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow: auto;
-        }
-        .error {
-            color: red;
-            margin-top: 10px;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+    <title>Acesso ao Power BI</title>
 </head>
 <body>
-
-    <div id="loginForm">
-        <h2>Entrar</h2>
+    <h1>Acesso ao Relatório do Power BI</h1>
+    <form id="loginForm">
         <label for="username">Usuário:</label>
-        <input type="text" id="username" name="username" required><br><br>
+        <input type="text" id="username" required>
+        <br>
         <label for="password">Senha:</label>
-        <input type="password" id="password" name="password" required><br><br>
-        <button onclick="login()">Login</button>
-        <p id="error" class="error hidden">Usuário ou senha inválidos.</p>
-    </div>
-
-    <div id="contentContainer">
-        <h2>Relatório Power BI</h2>
-        <div id="content">Carregando relatório...</div>
-    </div>
+        <input type="password" id="password" required>
+        <br>
+        <button type="submit">Acessar</button>
+    </form>
+    <div id="error" style="color: red; display: none;">Usuário ou senha inválidos.</div>
+    <div id="reportContainer" style="display: none;"></div>
 
     <script>
-        const vercelUrl = "https://powerbi-frontend.vercel.app/api/login"; // Altere para seu URL no Vercel
+        document.getElementById('loginForm').onsubmit = async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-        async function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            
             try {
-                const response = await fetch(vercelUrl, {
-                    method: "POST",
+                const response = await fetch('https://powerbi-frontend.vercel.app/api/powerbi-proxy', {
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/json",
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ username, password }),
+                    body: JSON.stringify({ username, password })
                 });
 
-                if (!response.ok) {
-                    document.getElementById("error").classList.remove("hidden");
-                    return;
-                }
-
-                // Obtem o link do Power BI do backend
-                const data = await response.json();
-                
-                if (data.success && data.link) {
-                    // Insere o link do Power BI na div #content usando um iframe
-                    document.getElementById("content").innerHTML = `<iframe src="${data.link}" width="100%" height="600" style="border: none;"></iframe>`;
-                    document.getElementById("contentContainer").style.display = "block";
-                    document.getElementById("loginForm").style.display = "none";
-                    document.getElementById("error").classList.add("hidden");
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        document.getElementById('reportContainer').innerHTML = result.iframeContent;
+                        document.getElementById('reportContainer').style.display = 'block';
+                        document.getElementById('loginForm').style.display = 'none';
+                        document.getElementById('error').style.display = 'none';
+                    } else {
+                        document.getElementById('error').style.display = 'block';
+                    }
                 } else {
-                    document.getElementById("error").classList.remove("hidden");
+                    document.getElementById('error').style.display = 'block';
                 }
-
             } catch (error) {
-                console.error("Erro ao conectar ao servidor:", error);
-                document.getElementById("error").textContent = "Erro ao conectar ao servidor.";
-                document.getElementById("error").classList.remove("hidden");
+                console.error('Erro ao conectar ao servidor:', error);
+                document.getElementById('error').textContent = 'Erro ao conectar ao servidor.';
+                document.getElementById('error').style.display = 'block';
             }
-        }
+        };
     </script>
 </body>
 </html>
