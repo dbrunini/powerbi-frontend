@@ -1,12 +1,17 @@
 export default function handler(req, res) {
-    // Cabeçalhos para permitir CORS
+    // Adiciona cabeçalhos CORS para permitir acesso do GitHub Pages
     res.setHeader("Access-Control-Allow-Origin", "https://dbrunini.github.io");
-    res.setHeader("Access-Control-Allow-Methods", "POST");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    const { username, password } = req.body;
+    // Verificação de requisição OPTIONS para suportar CORS
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
 
-    // Credenciais
+    // Autenticação
+    const { username, password } = req.body;
     const validUser = process.env.USERNAME;
     const validPassword = process.env.PASSWORD;
 
